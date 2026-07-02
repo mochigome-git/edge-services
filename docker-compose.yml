@@ -1,0 +1,113 @@
+services:
+  ecs-mach-pub:
+    image: 590183751536.dkr.ecr.ap-southeast-1.amazonaws.com/msp-go:v2.22.5
+    container_name: ecs-mach-pub
+    restart: always
+    environment:
+      PLC_PORT: ${PUB_PLC_PORT}
+      DEVICES_2bit: ${PUB_DEVICES_2bit}
+      PLC_HOST: ${PUB_PLC_HOST}
+      MQTT_TOPIC: ${PUB_MQTT_TOPIC}
+      DEVICES_16bit: ${PUB_DEVICES_16bit}
+      PLC_MODEL: ${PUB_PLC_MODEL}
+      PPROFT_PORT: ${PUB_PPROFT_PORT}
+      MQTTS_ON: ${PUB_MQTTS_ON}
+      ECS_MQTT_CA_CERTIFICATE: ${ECS_MQTT_CA_CERTIFICATE}
+      ECS_MQTT_CLIENT_CERTIFICATE: ${ECS_MQTT_CLIENT_CERTIFICATE}
+      ECS_MQTT_PRIVATE_KEY: ${ECS_MQTT_PRIVATE_KEY}
+      MQTT_HOST: ${MQTT_HOST}
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  ecs-mach-pub-degas:
+    image: 590183751536.dkr.ecr.ap-southeast-1.amazonaws.com/msp-go:v2.22.5
+    container_name: ecs-mach-pub-degas
+    restart: always
+    environment:
+      PLC_PORT: ${DEGAS_PLC_PORT}
+      PLC_HOST: ${DEGAS_PLC_HOST}
+      MQTT_TOPIC: ${DEGAS_MQTT_TOPIC}
+      PLC_MODEL: ${DEGAS_PLC_MODEL}
+      PPROFT_PORT: ${DEGAS_PPROFT_PORT}
+      DEVICES_32bit: ${DEGAS_DEVICES_32bit}
+      MQTTS_ON: ${DEGAS_MQTTS_ON}
+      ECS_MQTT_CA_CERTIFICATE: ${ECS_MQTT_CA_CERTIFICATE}
+      ECS_MQTT_CLIENT_CERTIFICATE: ${ECS_MQTT_CLIENT_CERTIFICATE}
+      ECS_MQTT_PRIVATE_KEY: ${ECS_MQTT_PRIVATE_KEY}
+      MQTT_HOST: ${MQTT_HOST}
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  ecs-mac-sub:
+    image: 590183751536.dkr.ecr.ap-southeast-1.amazonaws.com/patch:v2.22.3
+    container_name: ecs-mach-sub
+    restart: always
+    env_file: .env
+    environment:
+      BASH_API: ${SUB_BASH_API}
+      MQTT_TOPIC: ${SUB_MQTT_TOPIC}
+      API_URL: ${SUB_API_URL}
+      MQTT_PORT: ${SUB_MQTT_PORT}
+      MQTTS_ON: ${SUB_MQTTS_ON}
+      TRIGGER_DEVICE: ${SUB_TRIGGER_DEVICE}
+      ECS_MQTT_CA_CERTIFICATE: ${ECS_MQTT_CA_CERTIFICATE}
+      ECS_MQTT_CLIENT_CERTIFICATE: ${ECS_MQTT_CLIENT_CERTIFICATE}
+      ECS_MQTT_PRIVATE_KEY: ${ECS_MQTT_PRIVATE_KEY}
+      MQTT_HOST: ${MQTT_HOST_CLEAR_DNS}
+      SERVICE_ROLE_KEY: ${SERVICE_ROLE_KEY}
+      INSERT_MODE: ${INSERT_MODE}
+      FILTER: ${FILTER}
+      LOOPING: ${LOOPING}
+      CYCLE_MODE_ENABLED: ${CYCLE_MODE_ENABLED}
+      CYCLE_ANCHOR_TOPIC: ${CYCLE_ANCHOR_TOPIC}
+      CYCLE_TIMEOUT_SEC: ${CYCLE_TIMEOUT_SEC}
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  ecs-mach-mcs-pub:
+    image: 590183751536.dkr.ecr.ap-southeast-1.amazonaws.com/msp-go:v2.22.5
+    container_name: ecs-mach-mcs-pub
+    restart: always
+    environment:
+      PLC_PORT: ${MCS_PUB_PLC_PORT}
+      PLC_HOST: ${MCS_PUB_PLC_HOST}
+      MQTT_TOPIC: ${MCS_PUB_MQTT_TOPIC}
+      DEVICES_2bit: ${MCS_PUB_DEVICES_2bit}
+      DEVICES_16bit: ${MCS_PUB_DEVICES_16bit}
+      DEVICES_ASCII: ${MCS_PUB_DEVICES_ASCII}
+      PLC_MODEL: ${MCS_PUB_PLC_MODEL}
+      PPROFT_PORT: ${MCS_PUB_PPROFT_PORT}
+      MQTTS_ON: ${MCS_PUB_MQTTS_ON}
+      ECS_MQTT_CA_CERTIFICATE: ${ECS_MQTT_CA_CERTIFICATE}
+      ECS_MQTT_CLIENT_CERTIFICATE: ${ECS_MQTT_CLIENT_CERTIFICATE}
+      ECS_MQTT_PRIVATE_KEY: ${ECS_MQTT_PRIVATE_KEY}
+      MQTT_HOST: ${MQTT_HOST}
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  mosquitto:
+    container_name: mosquitto_container
+    image: eclipse-mosquitto:latest
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - ./data:/mosquitto/data/
+    networks:
+      - default
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "10"
