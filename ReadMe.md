@@ -12,29 +12,6 @@ PLC (Modbus TCP) ──LAN──> Pi (this service) ──MQTTS──> [WAN] ─
 
 ---
 
-## Why this runs on the Pi and not in ECS
-
-The poller lives at the edge by design, not convenience:
-
-- **The PLC is on the factory LAN** (`192.168.3.82`). That address is only
-  reachable from inside the plant network. ECS lives in the AWS VPC, a separate
-  network — it cannot reach a LAN IP without a VPN, and even with a VPN the
-  poll loop would cross the WAN on every Modbus transaction.
-- **Modbus is half-duplex request/response.** Polling across a WAN pays the
-  round-trip latency on *every* transaction, sequentially. ~50 transactions at
-  40 ms RTT = ~2 s per cycle just in network time. On the LAN it's sub-50 ms.
-- **Resilience.** If the internet drops, the Pi keeps polling the PLC over the
-  LAN and the MQTT client spools locally, draining on reconnect. A cloud poller
-  loses data at the source during an outage.
-- **Security.** Only the MQTT broker is internet-facing. The PLC never leaves
-  the factory network.
-
-The cloud (ECS) owns everything *behind* the MQTT broker — the bridge, the
-Kafka consumers, the database. The split: edge owns physical I/O and the
-unreliable link; cloud owns the durable log and processing.
-
----
-
 ## Prerequisites
 
 - Raspberry Pi 5 (`aarch64` / 64-bit) running Raspberry Pi OS
@@ -123,11 +100,11 @@ MQTT_PRIVATE_KEY_PATH=/certs/client.key
 The three MQTT TLS files live in `./certs/` and mount read-only into the
 container at `/certs`:
 
-| File              | SSM parameter                          |
-| ----------------- | -------------------------------------- |
-| `certs/ca.crt`    | `/EC2_MQTT_CA_CERTIFICATE`             |
-| `certs/client.crt`| `/EC2_MQTT_CLIENT_CERTIFICATE`         |
-| `certs/client.key`| `/EC2_MQTT_PRIVATE_KEY`                |
+| File               | SSM parameter                  |
+| ------------------ | ------------------------------ |
+| `certs/ca.crt`     | `/EC2_MQTT_CA_CERTIFICATE`     |
+| `certs/client.crt` | `/EC2_MQTT_CLIENT_CERTIFICATE` |
+| `certs/client.key` | `/EC2_MQTT_PRIVATE_KEY`        |
 
 ### `load-config.sh`
 
@@ -153,7 +130,7 @@ echo "MQTT_HOST=$(get /SUPABASE/GIMDASHBOARD/MQTT/HOST)" >> .env
 ```
 
 > Fetching SSM parameters needs `ssm:GetParameter` **and** `kms:Decrypt` for the
-> SecureString cert params. The scoped ECR-pull user below does *not* include
+> SecureString cert params. The scoped ECR-pull user below does _not_ include
 > these — run `load-config.sh` with a credential that has SSM read access, then
 > the Pi only needs the ECR-pull user for ongoing image pulls.
 
@@ -171,7 +148,7 @@ services:
     volumes:
       - ./certs:/certs:ro
     ports:
-      - "6060:6060"   # pprof, optional
+      - "6060:6060" # pprof, optional
     logging:
       driver: json-file
       options:
@@ -238,7 +215,7 @@ Do **not** put broad AWS keys on a floor device. Create a dedicated user
         "ecr:GetDownloadUrlForLayer",
         "ecr:BatchCheckLayerAvailability"
       ],
-      "Resource": "arn:aws:ecr:ap-southeast-1:590183751536:repository/msp-go"
+      "Resource": "arn:aws:ecr:ap-southeast-1:xxxxxxxxxx:repository/msp-go"
     }
   ]
 }
@@ -259,7 +236,7 @@ install the credential helper. Not an SSH or network problem.
 
 **`no matching manifest for linux/arm64`**
 The image was built amd64-only (for the ECS platform) and has no ARM variant.
-The Pi 5 needs an arm64 image — this is a fix on the *push* side (multi-arch
+The Pi 5 needs an arm64 image — this is a fix on the _push_ side (multi-arch
 `docker buildx` build), not something configurable on the Pi.
 
 **`The "FILTER" / "LOOPING" variable is not set`**
