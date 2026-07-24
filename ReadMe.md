@@ -228,6 +228,13 @@ nothing else.
 
 ---
 
+### Raspberry Pi config.txt setting
+
+```
+dtparam=pciex1_gen=3
+usb_max_current_enable=1
+```
+
 ## Troubleshooting
 
 **`no basic auth credentials` on pull**

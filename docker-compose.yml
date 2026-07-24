@@ -1,8 +1,11 @@
 services:
-  ecs-mach-pub:
-    image: 590183751536.dkr.ecr.ap-southeast-1.amazonaws.com/msp-go:v2.22.5
-    container_name: ecs-mach-pub
+  msp-filling-machine:
+    image: public.ecr.aws/pixelsofts/gomsp-edge:v1.0.1
+    container_name: msp-filling-machine
     restart: always
+    depends_on:
+      mosquitto:
+        condition: service_healthy
     environment:
       PLC_PORT: ${PUB_PLC_PORT}
       DEVICES_2bit: ${PUB_DEVICES_2bit}
@@ -12,9 +15,9 @@ services:
       PLC_MODEL: ${PUB_PLC_MODEL}
       PPROFT_PORT: ${PUB_PPROFT_PORT}
       MQTTS_ON: ${PUB_MQTTS_ON}
-      ECS_MQTT_CA_CERTIFICATE: ${ECS_MQTT_CA_CERTIFICATE}
-      ECS_MQTT_CLIENT_CERTIFICATE: ${ECS_MQTT_CLIENT_CERTIFICATE}
-      ECS_MQTT_PRIVATE_KEY: ${ECS_MQTT_PRIVATE_KEY}
+      # ECS_MQTT_CA_CERTIFICATE: ${ECS_MQTT_CA_CERTIFICATE}
+      # ECS_MQTT_CLIENT_CERTIFICATE: ${ECS_MQTT_CLIENT_CERTIFICATE}
+      # ECS_MQTT_PRIVATE_KEY: ${ECS_MQTT_PRIVATE_KEY}
       MQTT_HOST: ${MQTT_HOST}
     logging:
       driver: json-file
@@ -22,61 +25,36 @@ services:
         max-size: "10m"
         max-file: "3"
 
-  ecs-mach-pub-degas:
-    image: 590183751536.dkr.ecr.ap-southeast-1.amazonaws.com/msp-go:v2.22.5
-    container_name: ecs-mach-pub-degas
-    restart: always
-    environment:
-      PLC_PORT: ${DEGAS_PLC_PORT}
-      PLC_HOST: ${DEGAS_PLC_HOST}
-      MQTT_TOPIC: ${DEGAS_MQTT_TOPIC}
-      PLC_MODEL: ${DEGAS_PLC_MODEL}
-      PPROFT_PORT: ${DEGAS_PPROFT_PORT}
-      DEVICES_32bit: ${DEGAS_DEVICES_32bit}
-      MQTTS_ON: ${DEGAS_MQTTS_ON}
-      ECS_MQTT_CA_CERTIFICATE: ${ECS_MQTT_CA_CERTIFICATE}
-      ECS_MQTT_CLIENT_CERTIFICATE: ${ECS_MQTT_CLIENT_CERTIFICATE}
-      ECS_MQTT_PRIVATE_KEY: ${ECS_MQTT_PRIVATE_KEY}
-      MQTT_HOST: ${MQTT_HOST}
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
+  # msp-degas-machine:
+  #   image: 590183751536.dkr.ecr.ap-southeast-1.amazonaws.com/msp-go:v2.22.5
+  #   container_name: msp-degas-machine
+  #   restart: always
+  #   environment:
+  #     PLC_PORT: ${DEGAS_PLC_PORT}
+  #     PLC_HOST: ${DEGAS_PLC_HOST}
+  #     MQTT_TOPIC: ${DEGAS_MQTT_TOPIC}
+  #     PLC_MODEL: ${DEGAS_PLC_MODEL}
+  #     PPROFT_PORT: ${DEGAS_PPROFT_PORT}
+  #     DEVICES_32bit: ${DEGAS_DEVICES_32bit}
+  #     MQTTS_ON: ${DEGAS_MQTTS_ON}
+  #     ECS_MQTT_CA_CERTIFICATE: ${ECS_MQTT_CA_CERTIFICATE}
+  #     ECS_MQTT_CLIENT_CERTIFICATE: ${ECS_MQTT_CLIENT_CERTIFICATE}
+  #     ECS_MQTT_PRIVATE_KEY: ${ECS_MQTT_PRIVATE_KEY}
+  #     MQTT_HOST: ${MQTT_HOST}
+  #   logging:
+  #     driver: json-file
+  #     options:
+  #       max-size: "10m"
+  #       max-file: "3"
 
-  ecs-mac-sub:
-    image: 590183751536.dkr.ecr.ap-southeast-1.amazonaws.com/patch:v2.22.3
-    container_name: ecs-mach-sub
-    restart: always
-    env_file: .env
-    environment:
-      BASH_API: ${SUB_BASH_API}
-      MQTT_TOPIC: ${SUB_MQTT_TOPIC}
-      API_URL: ${SUB_API_URL}
-      MQTT_PORT: ${SUB_MQTT_PORT}
-      MQTTS_ON: ${SUB_MQTTS_ON}
-      TRIGGER_DEVICE: ${SUB_TRIGGER_DEVICE}
-      ECS_MQTT_CA_CERTIFICATE: ${ECS_MQTT_CA_CERTIFICATE}
-      ECS_MQTT_CLIENT_CERTIFICATE: ${ECS_MQTT_CLIENT_CERTIFICATE}
-      ECS_MQTT_PRIVATE_KEY: ${ECS_MQTT_PRIVATE_KEY}
-      MQTT_HOST: ${MQTT_HOST_CLEAR_DNS}
-      SERVICE_ROLE_KEY: ${SERVICE_ROLE_KEY}
-      INSERT_MODE: ${INSERT_MODE}
-      FILTER: ${FILTER}
-      LOOPING: ${LOOPING}
-      CYCLE_MODE_ENABLED: ${CYCLE_MODE_ENABLED}
-      CYCLE_ANCHOR_TOPIC: ${CYCLE_ANCHOR_TOPIC}
-      CYCLE_TIMEOUT_SEC: ${CYCLE_TIMEOUT_SEC}
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
 
-  ecs-mach-mcs-pub:
-    image: 590183751536.dkr.ecr.ap-southeast-1.amazonaws.com/msp-go:v2.22.5
-    container_name: ecs-mach-mcs-pub
+  msp-mcs:
+    image: public.ecr.aws/pixelsofts/gomsp-edge:v1.0.1
+    container_name: msp-mcs
     restart: always
+    depends_on:
+      mosquitto:
+        condition: service_healthy
     environment:
       PLC_PORT: ${MCS_PUB_PLC_PORT}
       PLC_HOST: ${MCS_PUB_PLC_HOST}
@@ -87,10 +65,130 @@ services:
       PLC_MODEL: ${MCS_PUB_PLC_MODEL}
       PPROFT_PORT: ${MCS_PUB_PPROFT_PORT}
       MQTTS_ON: ${MCS_PUB_MQTTS_ON}
-      ECS_MQTT_CA_CERTIFICATE: ${ECS_MQTT_CA_CERTIFICATE}
-      ECS_MQTT_CLIENT_CERTIFICATE: ${ECS_MQTT_CLIENT_CERTIFICATE}
-      ECS_MQTT_PRIVATE_KEY: ${ECS_MQTT_PRIVATE_KEY}
+      # ECS_MQTT_CA_CERTIFICATE: ${ECS_MQTT_CA_CERTIFICATE}
+      # ECS_MQTT_CLIENT_CERTIFICATE: ${ECS_MQTT_CLIENT_CERTIFICATE}
+      # ECS_MQTT_PRIVATE_KEY: ${ECS_MQTT_PRIVATE_KEY}
       MQTT_HOST: ${MQTT_HOST}
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  gopub-edge-mcs:
+    image: public.ecr.aws/pixelsofts/gopub-edge:v1.0.2
+    container_name: gopub-edge-mcs
+    restart: always
+    depends_on:
+      mosquitto:
+        condition: service_healthy
+    env_file: .env
+    environment:
+      TENANT_ID: ${TENANT_ID}
+      DEVICE_ID: ${MCS_DEVICE_ID}
+      EMQX_CLIENT_ID_PREFIX: ${EMQX_CLIENT_ID_PREFIX}
+      EMQX_INSERT_REQUEST_TOPIC: ${EMQX_INSERT_REQUEST_TOPIC}
+      EMQX_HOST: ${EMQX_HOST}
+      EMQX_PORT: ${EMQX_PORT}
+      EMQX_USERNAME: ${EMQX_USERNAME}
+      EMQX_PASSWORD: ${EMQX_PASSWORD}
+      EMQX_TLS_ON: ${EMQX_TLS_ON}
+      EMQX_CA_CERTIFICATE: ${EMQX_CA_CERTIFICATE}
+      #ECS_MQTT_CA_CERTIFICATE: ${ECS_MQTT_CA_CERTIFICATE}
+      #ECS_MQTT_CLIENT_CERTIFICATE: ${ECS_MQTT_CLIENT_CERTIFICATE}
+      #ECS_MQTT_PRIVATE_KEY: ${ECS_MQTT_PRIVATE_KEY}
+      MQTT_DEBUG: ${MQTT_DEBUG}
+      MQTT_HOST: ${MQTT_HOST_CLEAR_DNS}
+      MQTT_TOPIC: ${MCS_MQTT_TOPIC}
+      MQTTS_ON: ${MCS_MQTTS_ON}
+      MQTT_PORT: ${MCS_MQTT_PORT}
+      # SERVICE_ROLE_KEY: ${SERVICE_ROLE_KEY}
+      TRIGGER_DEVICE: ${MCS_TRIGGER_DEVICE}
+      INSERT_MODE: ${MCS_INSERT_MODE}
+      FILTER: ${MCS_FILTER}
+      LOOPING: ${MCS_LOOPING}
+      CYCLE_MODE_ENABLED: ${MCS_CYCLE_MODE_ENABLED}
+      CYCLE_ANCHOR_TOPIC: ${MCS_CYCLE_ANCHOR_TOPIC}
+      CYCLE_TIMEOUT_SEC: ${MCS_CYCLE_TIMEOUT_SEC}
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+  gopub-edge-healthcheck:
+    image: public.ecr.aws/pixelsofts/gopub-edge:v1.0.2
+    container_name: gopub-edge-healthcheck
+    restart: always
+    depends_on:
+      mosquitto:
+        condition: service_healthy
+    env_file: .env
+    environment:
+      TENANT_ID: ${TENANT_ID}
+      DEVICE_ID: ${HEALTHCHECK_DEVICE_ID}
+      EMQX_CLIENT_ID_PREFIX: ${EMQX_CLIENT_ID_PREFIX}
+      EMQX_INSERT_REQUEST_TOPIC: ${EMQX_INSERT_REQUEST_TOPIC}
+      EMQX_HOST: ${EMQX_HOST}
+      EMQX_PORT: ${EMQX_PORT}
+      EMQX_USERNAME: ${EMQX_USERNAME}
+      EMQX_PASSWORD: ${EMQX_PASSWORD}
+      EMQX_TLS_ON: ${EMQX_TLS_ON}
+      EMQX_CA_CERTIFICATE: ${EMQX_CA_CERTIFICATE}
+      #ECS_MQTT_CA_CERTIFICATE: ${ECS_MQTT_CA_CERTIFICATE}
+      #ECS_MQTT_CLIENT_CERTIFICATE: ${ECS_MQTT_CLIENT_CERTIFICATE}
+      #ECS_MQTT_PRIVATE_KEY: ${ECS_MQTT_PRIVATE_KEY}
+      MQTT_DEBUG: ${MQTT_DEBUG}
+      MQTT_HOST: ${MQTT_HOST_CLEAR_DNS}
+      MQTT_TOPIC: ${HEALTHCHECK_MQTT_TOPIC}
+      MQTTS_ON: ${HEALTHCHECK_MQTTS_ON}
+      MQTT_PORT: ${HEALTHCHECK_MQTT_PORT}
+      MQTT_REPLY_TOPIC_PREFIX: ${HEALTHCHECK_MQTT_REPLY_TOPIC_PREFIX}
+      MQTT_REPLY_TIMEOUT_SEC: ${HEALTHCHECK_MQTT_REPLY_TIMEOUT_SEC}
+      LOCAL_VACUUM_REQUEST_TOPIC: ${HEALTHCHECK_LOCAL_VACUUM_REQUEST_TOPIC}
+      # SERVICE_ROLE_KEY: ${SERVICE_ROLE_KEY}
+      PLC_HOST: ${HEALTHCHECK_PLC_HOST}
+      PLC_PORT: ${HEALTHCHECK_PLC_PORT}
+      TRIGGER_DEVICE: ${HEALTHCHECK_TRIGGER_DEVICE}
+      INSERT_MODE: ${HEALTHCHECK_INSERT_MODE}
+      FILTER: ${HEALTHCHECK_FILTER}
+      LOOPING: ${HEALTHCHECK_LOOPING}
+      CYCLE_MODE_ENABLED: ${HEALTHCHECK_CYCLE_MODE_ENABLED}
+      CYCLE_ANCHOR_TOPIC: ${HEALTHCHECK_CYCLE_ANCHOR_TOPIC}
+      CYCLE_TIMEOUT_SEC: ${HEALTHCHECK_CYCLE_TIMEOUT_SEC}
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  govacuum-engine-gc:
+    image: public.ecr.aws/pixelsofts/govacuum-engine-gc:v1.0.2
+    container_name: govacuum-engine-healthcheck
+    restart: always
+    depends_on:
+      mosquitto:
+        condition: service_healthy
+    env_file: .env
+    environment:
+      TENANT_ID: ${TENANT_ID}
+      DEVICE_ID: ${DEVICE_ID}
+      SUPABASE_URL: ${SUPABASE_URL}
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
+      SUPABASE_SCHEMA:
+      IQR_HISTORY_LIMIT:
+      EMQX_CLIENT_ID_PREFIX: ${GO_VACUUM_ENGINE_EMQX_CLIENT_ID_PREFIX}
+      EMQX_INSERT_REQUEST_TOPIC: ${EMQX_INSERT_REQUEST_TOPIC}
+      EMQX_HOST: ${EMQX_HOST}
+      EMQX_PORT: ${EMQX_PORT}
+      EMQX_USERNAME: ${EMQX_USERNAME}
+      EMQX_PASSWORD: ${EMQX_PASSWORD}
+      EMQX_TLS_ON: ${EMQX_TLS_ON}
+      EMQX_CA_CERTIFICATE: ${EMQX_CA_CERTIFICATE}
+      MOSQUITTO_HOST: ${MQTT_HOST_CLEAR_DNS}
+      MOSQUITTO_PORT: ${GO_VACUUM_ENGINE_MQTT_PORT}
+      MOSQUITTO_TLS_ON: ${GO_VACUUM_ENGINE_MQTTS_ON}
+      MOSQUITTO_CLIENT_ID_PREFIX: ${GO_VACUUM_ENGINE_MOSQUITTO_CLIENT_ID_PREFIX}
+      LOCAL_VACUUM_REQUEST_TOPIC: ${GO_VACUUM_ENGINE_LOCAL_VACUUM_REQUEST_TOPIC}
     logging:
       driver: json-file
       options:
@@ -100,11 +198,19 @@ services:
   mosquitto:
     container_name: mosquitto_container
     image: eclipse-mosquitto:latest
+    #ports:
+    #  - "1883:1883"
     volumes:
       - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
       - ./data:/mosquitto/data/
     networks:
       - default
+    healthcheck:
+      test: [ "CMD-SHELL", "nc -z localhost 1883 || exit 1" ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
     restart: unless-stopped
     logging:
       driver: "json-file"

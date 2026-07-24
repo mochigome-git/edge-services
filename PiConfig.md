@@ -1,0 +1,1 @@
+usb_max_current_enable=1
