@@ -1,6 +1,6 @@
 services:
   msp-filling-machine:
-    image: public.ecr.aws/pixelsofts/gomsp-edge:v1.0.1
+    image: public.ecr.aws/pixelsofts/gomsp-edge:v1.0.2
     container_name: msp-filling-machine
     restart: always
     depends_on:
@@ -8,9 +8,10 @@ services:
         condition: service_healthy
     environment:
       PLC_PORT: ${PUB_PLC_PORT}
-      DEVICES_2bit: ${PUB_DEVICES_2bit}
       PLC_HOST: ${PUB_PLC_HOST}
+      MAIN_PLC_BRAND: ${PUB_MAIN_PLC_BRAND}
       MQTT_TOPIC: ${PUB_MQTT_TOPIC}
+      DEVICES_2bit: ${PUB_DEVICES_2bit}
       DEVICES_16bit: ${PUB_DEVICES_16bit}
       PLC_MODEL: ${PUB_PLC_MODEL}
       PPROFT_PORT: ${PUB_PPROFT_PORT}
@@ -49,7 +50,7 @@ services:
 
 
   msp-mcs:
-    image: public.ecr.aws/pixelsofts/gomsp-edge:v1.0.1
+    image: public.ecr.aws/pixelsofts/gomsp-edge:v1.0.2
     container_name: msp-mcs
     restart: always
     depends_on:
@@ -58,6 +59,7 @@ services:
     environment:
       PLC_PORT: ${MCS_PUB_PLC_PORT}
       PLC_HOST: ${MCS_PUB_PLC_HOST}
+      MAIN_PLC_BRAND: ${MCS_PUB_MAIN_PLC_BRAND}
       MQTT_TOPIC: ${MCS_PUB_MQTT_TOPIC}
       DEVICES_2bit: ${MCS_PUB_DEVICES_2bit}
       DEVICES_16bit: ${MCS_PUB_DEVICES_16bit}
@@ -69,6 +71,75 @@ services:
       # ECS_MQTT_CLIENT_CERTIFICATE: ${ECS_MQTT_CLIENT_CERTIFICATE}
       # ECS_MQTT_PRIVATE_KEY: ${ECS_MQTT_PRIVATE_KEY}
       MQTT_HOST: ${MQTT_HOST}
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  msp-mcs-job:
+    image: public.ecr.aws/pixelsofts/gomsp-edge:v1.0.2
+    container_name: msp-mcs-job
+    restart: always
+    depends_on:
+      mosquitto:
+        condition: service_healthy
+    environment:
+      PLC_PORT: ${MCS_JOB_PUB_PLC_PORT}
+      PLC_HOST: ${MCS_JOB_PUB_PLC_HOST}
+      MAIN_PLC_BRAND: ${MCS_JOB_MAIN_PLC_BRAND}
+      MQTT_TOPIC: ${MCS_JOB_PUB_MQTT_TOPIC}
+      DEVICES_2bit: ${MCS_JOB_PUB_DEVICES_2bit}
+      DEVICES_16bit: ${MCS_JOB_PUB_DEVICES_16bit}
+      DEVICES_ASCII: ${MCS_JOB_PUB_DEVICES_ASCII}
+      PLC_MODEL: ${MCS_JOB_PUB_PLC_MODEL}
+      PPROFT_PORT: ${MCS_JOB_PUB_PPROFT_PORT}
+      MQTTS_ON: ${MCS_JOB_PUB_MQTTS_ON}
+      # ECS_MQTT_CA_CERTIFICATE: ${ECS_MQTT_CA_CERTIFICATE}
+      # ECS_MQTT_CLIENT_CERTIFICATE: ${ECS_MQTT_CLIENT_CERTIFICATE}
+      # ECS_MQTT_PRIVATE_KEY: ${ECS_MQTT_PRIVATE_KEY}
+      MQTT_HOST: ${MQTT_HOST}
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  gopub-edge-mcs-job:
+    image: public.ecr.aws/pixelsofts/gopub-edge:v1.0.3
+    container_name: gopub-edge-mcs-job
+    restart: always
+    depends_on:
+      mosquitto:
+        condition: service_healthy
+    env_file: .env
+    environment:
+      TENANT_ID: ${TENANT_ID}
+      DEVICE_ID: ${MCS_DEVICE_ID}
+      EMQX_CLIENT_ID_PREFIX: ${EMQX_CLIENT_ID_PREFIX}
+      EMQX_INSERT_REQUEST_TOPIC: ${EMQX_INSERT_REQUEST_TOPIC}
+      EMQX_HOST: ${EMQX_HOST}
+      EMQX_PORT: ${EMQX_PORT}
+      EMQX_USERNAME: ${EMQX_USERNAME}
+      EMQX_PASSWORD: ${EMQX_PASSWORD}
+      EMQX_TLS_ON: ${EMQX_TLS_ON}
+      EMQX_CA_CERTIFICATE: ${EMQX_CA_CERTIFICATE}
+      #ECS_MQTT_CA_CERTIFICATE: ${ECS_MQTT_CA_CERTIFICATE}
+      #ECS_MQTT_CLIENT_CERTIFICATE: ${ECS_MQTT_CLIENT_CERTIFICATE}
+      #ECS_MQTT_PRIVATE_KEY: ${ECS_MQTT_PRIVATE_KEY}
+      MQTT_DEBUG: ${MQTT_DEBUG}
+      MQTT_HOST: ${MQTT_HOST_CLEAR_DNS}
+      MQTT_TOPIC: ${MCS_JOB_MQTT_TOPIC}
+      MQTTS_ON: ${MCS_JOB_MQTTS_ON}
+      MQTT_PORT: ${MCS_JOB_MQTT_PORT}
+      # SERVICE_ROLE_KEY: ${SERVICE_ROLE_KEY}
+      TRIGGER_DEVICE: ${MCS_JOB_TRIGGER_DEVICE}
+      INSERT_MODE: ${MCS_JOB_INSERT_MODE}
+      FILTER: ${MCS_JOB_FILTER}
+      LOOPING: ${MCS_JOB_LOOPING}
+      CYCLE_MODE_ENABLED: ${MCS_JOB_CYCLE_MODE_ENABLED}
+      CYCLE_ANCHOR_TOPIC: ${MCS_JOB_CYCLE_ANCHOR_TOPIC}
+      CYCLE_TIMEOUT_SEC: ${MCS_JOB_CYCLE_TIMEOUT_SEC}
     logging:
       driver: json-file
       options:
