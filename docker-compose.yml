@@ -106,7 +106,7 @@ services:
         max-file: "3"
 
   gopub-edge-mcs-job:
-    image: public.ecr.aws/pixelsofts/gopub-edge:v1.0.3
+    image: public.ecr.aws/pixelsofts/gopub-edge:v1.1.1
     container_name: gopub-edge-mcs-job
     restart: always
     depends_on:
@@ -147,7 +147,7 @@ services:
         max-file: "3"
 
   gopub-edge-mcs:
-    image: public.ecr.aws/pixelsofts/gopub-edge:v1.0.2
+    image: public.ecr.aws/pixelsofts/gopub-edge:v1.1.1
     container_name: gopub-edge-mcs
     restart: always
     depends_on:
