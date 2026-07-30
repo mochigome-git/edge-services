@@ -27,12 +27,13 @@ services:
         max-file: "3"
 
   # msp-degas-machine:
-  #   image: 590183751536.dkr.ecr.ap-southeast-1.amazonaws.com/msp-go:v2.22.5
+  #   image: public.ecr.aws/pixelsofts/gomsp-edge:v1.0.2
   #   container_name: msp-degas-machine
   #   restart: always
   #   environment:
   #     PLC_PORT: ${DEGAS_PLC_PORT}
   #     PLC_HOST: ${DEGAS_PLC_HOST}
+  #     MAIN_PLC_BRAND: ${DEGAS_MAIN_PLC_BRAND}
   #     MQTT_TOPIC: ${DEGAS_MQTT_TOPIC}
   #     PLC_MODEL: ${DEGAS_PLC_MODEL}
   #     PPROFT_PORT: ${DEGAS_PPROFT_PORT}
